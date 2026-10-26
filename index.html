@@ -1,0 +1,1298 @@
+<!--
+  =====================================================
+  This is a calculator, computation is made by
+  Production Manager John James Malubay for his company
+  he works, Yungatha Pty Ltd, don't copy it.
+  =====================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Yungatha Cut Optimiser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --charcoal:#1F2428; --charcoal-2:#2A3136; --steel:#C7CDD1; --steel-light:#EDEFF1;
+    --orange:#FF6B1A; --orange-dark:#E0570F; --yellow:#FFC845; --green:#2E7D5B; --red:#C4432B; --blue:#2B5D96;
+    --bg:#F5F6F7; --line:#D7DBDE; --text:#20262A; --text-mute:#6B7480;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;}
+  header{background:var(--charcoal);color:#fff;padding:16px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-bottom:4px solid var(--orange);}
+  header h1{font-family:'Oswald',sans-serif;font-weight:600;font-size:24px;letter-spacing:0.5px;margin:0;text-transform:uppercase;}
+  header .tag{color:var(--steel);font-size:12.5px;margin-top:2px;font-family:'JetBrains Mono',monospace;}
+  .settings-bar{display:flex;gap:10px;align-items:center;background:var(--charcoal-2);padding:9px 14px;border-radius:8px;flex-wrap:wrap;}
+  .settings-bar .grp{display:flex;flex-direction:column;align-items:flex-start;}
+  .settings-bar label{font-size:10px;color:var(--steel);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+  .settings-bar input[type=number]{width:70px;background:#111417;color:#fff;border:1px solid #3a4147;border-radius:5px;padding:6px 7px;font-family:'JetBrains Mono',monospace;font-size:14px;}
+  .seam-toggle{display:flex;align-items:center;gap:7px;background:#111417;border:1px solid #3a4147;border-radius:6px;padding:8px 12px;}
+  .seam-toggle label{color:#fff;font-size:13px;text-transform:none;letter-spacing:0;margin:0;font-weight:600;}
+  .seam-toggle input{width:18px;height:18px;}
+  .reset-hint{color:var(--text-mute);font-size:12.5px;font-family:'Inter',sans-serif;}
+  .reset-btn-outline{background:#fff;color:var(--orange-dark);border:2px solid var(--orange);border-radius:8px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;}
+  .reset-btn-outline:hover{background:#FFF3EA;}
+  main{max-width:1300px;margin:0 auto;padding:22px 26px 60px;}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px;}
+  .panel-head{background:var(--steel-light);padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .panel-head h2{font-family:'Oswald',sans-serif;font-size:19px;text-transform:uppercase;letter-spacing:0.5px;margin:0;color:var(--charcoal);}
+  .panel-head .count{font-size:13px;color:var(--text-mute);font-family:'JetBrains Mono',monospace;}
+  .panel-body{padding:16px 20px;}
+
+  /* compact stock table */
+  table.stock{width:100%;border-collapse:collapse;font-size:14px;}
+  table.stock th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-mute);padding:7px 6px;border-bottom:2px solid var(--line);}
+  table.stock td{padding:6px 6px;border-bottom:1px solid #ECEEF0;}
+  table.stock input[type=text],table.stock input[type=number]{border:1px solid var(--line);border-radius:5px;padding:7px 8px;font-family:'JetBrains Mono',monospace;font-size:14px;background:#fcfcfc;}
+  table.stock select{border:1px solid var(--line);border-radius:5px;padding:7px 4px;font-size:13px;background:#fcfcfc;width:100%;}
+  .num{width:78px;}
+  .rm-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:19px;line-height:1;padding:2px 8px;}
+  .rm-btn:hover{opacity:0.7;}
+  .add-row{margin-top:12px;background:var(--steel-light);border:2px dashed var(--line);color:var(--charcoal);padding:11px 14px;border-radius:8px;font-size:15px;cursor:pointer;font-weight:700;width:100%;}
+  .add-row:hover{background:#e4e7e9;}
+
+  /* big piece cards */
+  .piece-card{border:2px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;background:#fcfcfc;}
+  .piece-top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;}
+  .piece-field{display:flex;flex-direction:column;}
+  .piece-field label{font-size:12px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-mute);margin-bottom:5px;font-weight:700;}
+  .piece-field input[type=text]{font-size:19px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;font-family:'Inter',sans-serif;width:190px;font-weight:600;}
+  .piece-field input[type=number]{font-size:20px;padding:10px 10px;border:2px solid var(--line);border-radius:8px;font-family:'JetBrains Mono',monospace;width:110px;font-weight:700;text-align:center;}
+  .piece-field.qty input{width:80px;}
+  .piece-field.rotate{flex-direction:row;align-items:center;gap:8px;padding-bottom:10px;}
+  .piece-field.rotate input{width:22px;height:22px;}
+  .piece-field.rotate label{margin:0;font-size:14px;}
+  .piece-remove{margin-left:auto;}
+  .piece-remove button{background:none;border:none;color:var(--red);font-size:22px;cursor:pointer;padding:6px 10px;}
+
+  .plan-box{margin-top:14px;border-radius:10px;padding:14px 16px;font-size:16px;}
+  .plan-box.none{background:#E7F4EE;color:var(--green);font-weight:700;font-size:17px;}
+  .plan-box.joiner{background:#E9F1FB;border:2px solid #B9D3F0;}
+  .plan-box.connecting{background:#FFF6DA;border:2px solid #F0D98A;}
+  .plan-box.blocked{background:#FBE7E3;border:2px solid #EFB6AA;color:var(--red);font-weight:700;font-size:17px;}
+  .plan-title{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:0.5px;font-size:15px;margin-bottom:10px;font-weight:600;}
+  .plan-title.joiner{color:var(--blue);}
+  .plan-title.connecting{color:#9A7300;}
+  .seg-editor{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px;}
+  .seg-item{display:flex;flex-direction:column;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .seg-item .seg-lbl{font-size:11px;color:var(--text-mute);text-transform:uppercase;margin-bottom:4px;}
+  .seg-item input[type=number]{width:90px;font-size:17px;padding:6px;text-align:center;font-family:'JetBrains Mono',monospace;border:2px solid var(--line);border-radius:6px;font-weight:700;}
+  .seg-item.auto input{background:#F0F2F3;color:var(--text-mute);}
+  .seg-plus{font-size:22px;color:var(--text-mute);font-weight:700;}
+  .invalid-note{color:var(--red);font-weight:700;margin-top:6px;font-size:14.5px;}
+  .offcut-preview{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;font-size:14px;line-height:1.7;color:var(--text);}
+  .offcut-preview b{font-family:'JetBrains Mono',monospace;}
+
+  .calc-bar{margin:26px 0;display:flex;justify-content:center;}
+  .calc-btn{background:var(--orange);color:#fff;border:none;padding:18px 44px;border-radius:10px;font-family:'Oswald',sans-serif;font-size:21px;text-transform:uppercase;letter-spacing:0.6px;cursor:pointer;box-shadow:0 4px 0 var(--orange-dark);}
+  .calc-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--orange-dark);}
+  .calc-btn:hover{background:#ff7a2e;}
+
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  @media(max-width:800px){.summary{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 14px;border-top:5px solid var(--orange);}
+  .stat.good{border-top-color:var(--green);}
+  .stat.warn{border-top-color:var(--red);}
+  .stat .num-big{font-family:'Oswald',sans-serif;font-size:30px;font-weight:600;color:var(--charcoal);}
+  .stat .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-mute);margin-top:2px;font-weight:600;}
+
+  .section-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:19px;letter-spacing:0.5px;margin:32px 0 14px;color:var(--charcoal);border-left:6px solid var(--orange);padding-left:12px;}
+  .section-title.err{border-left-color:var(--red);}
+  .section-title.info{border-left-color:var(--blue);}
+
+  .order-table{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+  .order-table table{width:100%;border-collapse:collapse;font-size:15px;}
+  .order-table th,.order-table td{padding:10px 12px;text-align:left;border-bottom:1px solid #ECEEF0;}
+  .order-table thead th{font-size:11.5px;text-transform:uppercase;color:var(--text-mute);background:var(--steel-light);}
+  .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+  .pill.offcut{background:#FFF1E3;color:var(--orange-dark);}
+  .pill.join{background:#FFF6DA;color:#9A7300;}
+  .pill.connecting{background:#FDEBD0;color:#8A5300;}
+  .pill.sheet{background:#E7F4EE;color:var(--green);}
+  .pill.seam{background:#E9F1FB;color:var(--blue);}
+  .pill.blocked{background:#FBE7E3;color:var(--red);}
+
+  .cut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px;}
+  .cut-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .cut-card .cc-head{background:var(--charcoal);color:#fff;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between;gap:8px;}
+  .cc-body{padding:12px;}
+  .legend-note{font-size:12.5px;color:var(--text-mute);padding:10px 14px;border-top:1px solid var(--line);background:var(--steel-light);line-height:1.5;}
+
+  .order-note{background:#fff;border:1px solid var(--line);border-left:6px solid var(--orange);border-radius:10px;padding:18px 20px;font-size:16px;line-height:1.7;}
+  .order-note b{color:var(--orange-dark);}
+
+  .blocked-table{background:#fff;border:2px solid #EFB6AA;border-radius:12px;overflow:hidden;margin-bottom:10px;}
+  .blocked-table table{width:100%;border-collapse:collapse;font-size:15px;}
+  .blocked-table th,.blocked-table td{padding:10px 12px;text-align:left;border-bottom:1px solid #f3d9d3;}
+  .blocked-table thead{background:#FBE7E3;}
+
+  .offcut-summary{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .offcut-summary table{width:100%;border-collapse:collapse;font-size:15px;}
+  .offcut-summary th,.offcut-summary td{padding:11px 14px;text-align:left;border-bottom:1px solid #ECEEF0;}
+  .offcut-summary thead th{font-size:11.5px;text-transform:uppercase;color:var(--text-mute);background:var(--steel-light);}
+  .offcut-summary .sizecell{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;}
+  .status-keep{color:var(--green);font-weight:700;}
+  .status-used{color:var(--text-mute);}
+
+  .sheets-needed{background:#fff;border:2px solid var(--orange);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+  .sheets-needed table{width:100%;border-collapse:collapse;font-size:16px;}
+  .sheets-needed th,.sheets-needed td{padding:13px 16px;text-align:left;border-bottom:1px solid #ECEEF0;}
+  .sheets-needed thead th{font-size:11.5px;text-transform:uppercase;color:var(--text-mute);background:var(--steel-light);}
+  .sheets-needed td{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;}
+  .sheets-needed td:first-child{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;}
+  .sheets-needed .total-cell{color:var(--orange-dark);font-size:19px;}
+
+  .collapsible{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+  .collapsible-head{width:100%;background:var(--steel-light);border:none;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;}
+  .collapsible-head:hover{background:#e4e7e9;}
+  .collapsible-head .chevron{font-size:16px;color:var(--text-mute);transition:transform 0.15s;}
+  .collapsible-head .chevron.open{transform:rotate(90deg);}
+  .collapsible-body{border-top:1px solid var(--line);}
+
+  .empty-hint{color:var(--text-mute);font-size:14px;padding:12px 4px;}
+
+  .reset-btn{
+    display:inline-flex; align-items:center; gap:7px; flex-shrink:0;
+    background:#ffffff; color:var(--orange-dark); border:1.5px solid var(--orange-dark);
+    border-radius:999px; padding:9px 18px; font-size:.85rem; font-weight:600;
+    cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif;
+    transition:background .15s;
+  }
+  .reset-btn:hover{background:#fff3ec;}
+
+  /* ===== PRINT MODAL (matches Strut/Streetplate calc) ===== */
+  .modal-overlay{position:fixed;inset:0;background:rgba(31,36,40,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;}
+  .modal-box{background:#fff;border-radius:14px;padding:28px 30px;width:92%;max-width:420px;box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+  .modal-box h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:20px;margin:0 0 18px;color:var(--charcoal);letter-spacing:0.4px;}
+  .modal-field{margin-bottom:16px;}
+  .modal-field label{display:block;font-size:13px;font-weight:700;color:var(--charcoal);margin-bottom:6px;}
+  .modal-field .req{color:var(--red);}
+  .modal-field input{width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;font-family:'Inter',sans-serif;}
+  .modal-field input:focus{outline:none;border-color:var(--orange);}
+  .modal-error{color:var(--red);font-size:13px;font-weight:600;margin:-6px 0 14px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;}
+  .modal-cancel{background:#fff;border:1.5px solid var(--line);color:var(--text-mute);font-weight:700;font-size:14px;padding:9px 16px;border-radius:8px;cursor:pointer;}
+  .modal-cancel:hover{background:var(--steel-light);}
+  .modal-confirm{background:var(--orange);border:none;color:#fff;font-weight:700;font-size:14px;padding:9px 18px;border-radius:8px;cursor:pointer;}
+  .modal-confirm:hover{background:var(--orange-dark);}
+
+  .print-only{display:none;}
+
+  @media print{
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .no-print{display:none!important;}
+    .print-only{display:block;margin-bottom:8px;}
+    .print-letterhead{text-align:center;border-bottom:2px solid var(--line);padding-bottom:4px;margin-bottom:6px;}
+    .print-company{font-family:'Oswald',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-mute);}
+    .print-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-mute);margin-top:1px;}
+    .print-job-banner{background:var(--charcoal);color:#fff;border-radius:6px;padding:6px 16px;border-left:6px solid var(--orange);display:flex;gap:28px;align-items:center;}
+    .pjb-line{display:flex;align-items:baseline;gap:8px;margin:0;}
+    .pjb-label{font-family:'Oswald',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);font-weight:700;min-width:0;flex-shrink:0;}
+    .pjb-value{font-family:'Oswald',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.3px;line-height:1.1;}
+    @page{ size: landscape; margin: 7mm; }
+    main{padding:0;max-width:100%;}
+    .panel{border-radius:0;box-shadow:none;margin-bottom:4px;border-color:#999;}
+    .panel-head{padding:4px 8px;page-break-after:avoid;break-after:avoid;}
+    .panel-head h2{font-size:12.5px;}
+    .panel-head .count{font-size:10px;}
+    .section-title{font-size:12px;margin:6px 0 4px;padding-left:8px;border-left-width:4px;}
+
+    /* Sheets Required: tiny reference table, not the focus */
+    .sheets-needed{margin-bottom:6px;}
+    .sheets-needed table{font-size:10.5px;}
+    .sheets-needed th,.sheets-needed td{padding:3px 8px;}
+    .blocked-table table{font-size:10.5px;}
+    .blocked-table th,.blocked-table td{padding:3px 8px;}
+
+    /* The Joiner/Connecting Panels "overview" card is just a recap of the
+       piece plan — the workshop only needs the actual per-sheet cutting
+       diagrams (Sheet ... #1, #2, ...) that follow it, so drop it from print. */
+    .panel-group-card{display:none!important;}
+
+    /* CUT DIAGRAMS — this is what the workshop actually needs, so pack as
+       many sheet diagrams onto each landscape page as will stay legible. */
+    .cut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))!important;gap:8px!important;}
+    .cut-card{page-break-inside:avoid;break-inside:avoid;border-radius:0;margin:0;}
+    .cc-head{padding:3px 6px;font-size:10px;flex-wrap:wrap;line-height:1.3;}
+    .cc-body{padding:3px;}
+    .legend-note{font-size:8.5px;padding:4px 6px;line-height:1.25;}
+
+    /* SUMMARY TO CUT — plain-text recap after the diagrams */
+    .stc-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:4px;}
+    .stc-block{border:1px solid #999;break-inside:avoid;page-break-inside:avoid;}
+    .stc-head{background:var(--charcoal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9pt;font-weight:700;padding:2px 6px;}
+    .stc-line{display:flex;justify-content:space-between;gap:6px;padding:1.5px 6px;font-family:'JetBrains Mono',monospace;font-size:9pt;border-top:1px solid #e2e2e2;}
+    .stc-label{font-weight:700;color:var(--text);font-size:9pt;}
+    .stc-dims{color:var(--text);font-weight:600;font-size:9pt;}
+  }
+
+  /* ===== ACCESS GATE (Project AiT / Yungatha licensing layer) ===== */
+  #aitGate{
+    position:fixed; inset:0; z-index:9999;
+    background:var(--charcoal);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #aitGate .gateCard{
+    width:100%; max-width:380px;
+    background:linear-gradient(180deg,#23292e,#1c2124);
+    border:1px solid #343c42;
+    border-top:3px solid var(--orange);
+    border-radius:10px;
+    padding:32px 28px;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  #aitGate .gateLock{
+    width:44px; height:44px; margin:0 auto 16px;
+    border-radius:50%;
+    background:rgba(255,107,26,.12);
+    display:flex; align-items:center; justify-content:center;
+  }
+  #aitGate .gateLock svg{ width:20px; height:20px; stroke:var(--orange); fill:none; stroke-width:2; }
+  #aitGate h2{
+    margin:0 0 6px; font-size:1.05rem; letter-spacing:.02em;
+    color:#e9edf0; font-family:'Inter',sans-serif;
+  }
+  #aitGate p{
+    margin:0 0 20px; font-size:.8rem; color:#9aa5ab;
+  }
+  #aitGate input{
+    width:100%; box-sizing:border-box;
+    background:#20262b; border:1px solid #343c42; border-radius:6px;
+    color:#e9edf0; font-family:'JetBrains Mono',monospace; font-size:.95rem;
+    padding:11px 44px 11px 14px; text-align:center; letter-spacing:.08em;
+  }
+  #aitGate input:focus{ outline:none; border-color:var(--orange); }
+  #aitGate .gateInputWrap{ position:relative; margin-bottom:12px; }
+  #aitGate .gateEyeBtn{
+    position:absolute; top:1px; right:1px; bottom:1px;
+    width:40px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; border-left:1px solid #343c42;
+    border-radius:0 5px 5px 0;
+    cursor:pointer; padding:0;
+  }
+  #aitGate .gateEyeBtn svg{
+    width:18px; height:18px; stroke:var(--steel); fill:none; stroke-width:1.8;
+    transition:stroke .15s;
+  }
+  #aitGate .gateEyeBtn:hover svg,
+  #aitGate .gateEyeBtn:focus-visible svg{ stroke:var(--orange); }
+  #aitGate .gateEyeBtn:hover{ background:rgba(255,107,26,.08); }
+  #aitGate button.gateSubmit{
+    width:100%; background:var(--orange); color:#1c2124; border:none;
+    border-radius:6px; padding:11px 14px; font-weight:700; font-size:.85rem;
+    font-family:'Inter',sans-serif; cursor:pointer; letter-spacing:.02em;
+  }
+  #aitGate button.gateSubmit:hover{ background:#ff8a3e; }
+  #aitGate .gateError{
+    margin-top:12px; font-size:.78rem; color:var(--red);
+    min-height:1em;
+  }
+  #aitGate .gateFooter{
+    margin-top:22px; font-size:.68rem; color:#9aa5ab;
+    border-top:1px dashed #343c42; padding-top:14px;
+  }
+  #appContent{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="aitGate">
+  <div class="gateCard">
+    <div class="gateLock">
+      <svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Yungatha &mdash; Aluminium Cut Optimiser</h2>
+    <p>Licensed tool. Enter your access code to continue.</p>
+    <div class="gateInputWrap">
+      <input type="password" id="aitGateInput" placeholder="Access code" autocomplete="off" />
+      <button type="button" class="gateEyeBtn" id="aitGateEyeBtn" onclick="aitToggleVisibility()" aria-label="Show password">
+        <svg id="aitEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <button class="gateSubmit" onclick="aitCheckCode()">Unlock</button>
+    <div class="gateError" id="aitGateError"></div>
+    <div class="gateFooter">&copy; JSTZN / Yungatha Pty Ltd &mdash; unauthorised distribution prohibited</div>
+  </div>
+</div>
+
+<script>
+  const AIT_EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+  const AIT_EYE_CLOSED = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 4.22-5.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  function aitToggleVisibility(){
+    const input = document.getElementById('aitGateInput');
+    const icon = document.getElementById('aitEyeIcon');
+    const btn = document.getElementById('aitGateEyeBtn');
+    const showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    icon.innerHTML = showing ? AIT_EYE_OPEN : AIT_EYE_CLOSED;
+    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    input.focus();
+  }
+  const AIT_ACCESS_CODE = "YUNGATHA2026";
+  function aitCheckCode(){
+    const val = document.getElementById('aitGateInput').value.trim();
+    if(val === AIT_ACCESS_CODE){
+      sessionStorage.setItem('aitUnlocked','1');
+      document.getElementById('aitGate').style.display='none';
+      document.getElementById('appContent').style.display='block';
+    } else {
+      document.getElementById('aitGateError').textContent = 'Incorrect code. Please try again.';
+    }
+  }
+  document.getElementById('aitGateInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ aitCheckCode(); }
+  });
+  if(sessionStorage.getItem('aitUnlocked') === '1'){
+    document.getElementById('aitGate').style.display='none';
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('appContent').style.display='block';
+    });
+  }
+</script>
+<!-- ===== END ACCESS GATE ===== -->
+
+<div id="appContent">
+
+<div class="print-only" id="printHeader">
+  <div class="print-letterhead">
+    <div class="print-company">Yungatha Aluminium Gaming</div>
+    <div class="print-sub">Workshop Cutting Sheet &nbsp;&middot;&nbsp; Printed <span id="printDate"></span></div>
+  </div>
+  <div class="print-job-banner">
+    <div class="pjb-line"><span class="pjb-label">Client</span><span class="pjb-value" id="pjbClient"></span></div>
+    <div class="pjb-line"><span class="pjb-label">Job No.</span><span class="pjb-value" id="pjbJobNo"></span></div>
+  </div>
+</div>
+
+<div class="modal-overlay no-print" id="printInfoModal" style="display:none;">
+  <div class="modal-box">
+    <h3>Before we print...</h3>
+    <div class="modal-field">
+      <label>Who is it for? <span class="req">*</span></label>
+      <input type="text" id="printClientName" placeholder="Client's name">
+    </div>
+    <div class="modal-field">
+      <label>What is the Job Number? <span class="req">*</span></label>
+      <input type="text" id="printJobNumber" placeholder="Job number">
+    </div>
+    <div class="modal-error" id="printModalError" style="display:none;">Please fill in both fields before printing.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closePrintInfoModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmPrintInfo()">🖨️ Print Workshop Sheet</button>
+    </div>
+  </div>
+</div>
+
+<header class="no-print">
+  <div>
+    <h1>Yungatha Aluminium Gaming</h1>
+    <div class="tag">Aluminium sheet nesting, Joiners &amp; Connecting Panels</div>
+  </div>
+  <div class="settings-bar">
+    <div class="grp"><label>Sheet W</label><input type="number" id="sheetW" value="3600"></div>
+    <div class="grp"><label>Sheet H</label><input type="number" id="sheetH" value="1200"></div>
+    <div class="grp"><label>Max Single Cut</label><input type="number" id="maxCutLen" value="3200"></div>
+    <div class="grp"><label>Max Print Height</label><input type="number" id="maxPrintH" value="1200"></div>
+    <div class="grp"><label>Max Connecting Span</label><input type="number" id="maxConnectLen" value="8000"></div>
+    <div class="seam-toggle"><input type="checkbox" id="joinersAllowed" checked onchange="refreshAllPlans()"><label for="joinersAllowed">Joiners allowed</label></div>
+    <div class="seam-toggle"><input type="checkbox" id="connectingAllowed" checked onchange="refreshAllPlans()"><label for="connectingAllowed">Connecting Panels allowed</label></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- STOCK ON HAND (compact, secondary) -->
+  <div class="panel no-print">
+    <div class="panel-head">
+      <h2>Stock On Hand</h2>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="count" id="stockCount" style="display:none;">0 lines</span>
+        <button class="reset-btn-outline" onclick="resetAll()">&#8635; Reset to Defaults</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <table class="stock" id="stockTable">
+        <thead><tr><th>Type</th><th>Width</th><th>Height</th><th>Thickness</th><th>Qty</th><th></th></tr></thead>
+        <tbody id="stockBody"></tbody>
+      </table>
+      <button class="add-row" onclick="addStockRow()">+ Add stock line</button>
+    </div>
+  </div>
+
+  <!-- PIECES NEEDED (big, primary) -->
+  <div class="panel no-print">
+    <div class="panel-head"><h2>What Do You Need To Cut?</h2><span class="count" id="orderCount">0 pieces</span></div>
+    <div class="panel-body" id="orderBody"></div>
+    <div style="padding:0 20px 18px;">
+      <button class="add-row" onclick="addOrderRow()">+ Add a piece you need</button>
+    </div>
+  </div>
+
+  <div class="calc-bar no-print">
+    <button class="calc-btn" onclick="runCalculation()">Calculate Best Cut Plan</button>
+  </div>
+
+  <div id="results" style="display:none;">
+
+    <div class="calc-bar no-print" style="margin:0 0 20px;">
+      <button class="calc-btn" style="background:var(--charcoal);box-shadow:0 4px 0 #000;" onclick="openPrintInfoModal()">🖨️ Export / Print Workshop Sheet</button>
+    </div>
+
+    <div class="section-title">Sheets Required For This Job</div>
+    <div class="sheets-needed">
+      <table>
+        <thead><tr><th>Sheet Size</th><th>Thickness</th><th>From Stock</th><th>To Order</th><th>Total</th></tr></thead>
+        <tbody id="sheetsNeededBody"></tbody>
+      </table>
+    </div>
+
+    <div class="summary no-print" id="summaryStats"></div>
+
+    <div id="blockedSection" style="display:none;">
+      <div class="section-title err">Cannot Produce As Specified</div>
+      <div class="blocked-table">
+        <table><thead><tr><th>Piece</th><th>Size</th><th>Qty</th><th>Reason</th></tr></thead><tbody id="blockedBody"></tbody></table>
+      </div>
+    </div>
+
+    <div class="collapsible no-print">
+      <button class="collapsible-head" onclick="toggleFulfilment()">
+        <span class="section-title" style="margin:0;">Fulfilment — How Each Piece Gets Made</span>
+        <span class="chevron" id="fulfilChevron">&#9656;</span>
+      </button>
+      <div class="order-table collapsible-body" id="fulfilContainer" style="display:none;">
+        <table><thead><tr><th>Piece</th><th>Size</th><th>Method</th><th>Detail</th></tr></thead><tbody id="fulfilBody"></tbody></table>
+      </div>
+    </div>
+
+    <div class="section-title info no-print">Offcut Summary — What You'll Have Left</div>
+    <div class="offcut-summary no-print">
+      <table>
+        <thead><tr><th>Offcut Size</th><th>Thickness</th><th>Qty</th></tr></thead>
+        <tbody id="offcutSummaryBody"></tbody>
+      </table>
+    </div>
+    <div class="no-print" style="margin-top:10px;">
+      <button class="add-row" id="carryForwardBtn" onclick="carryOffcutsToStock()" style="display:none;">+ Add these offcuts to Stock On Hand (for your next job)</button>
+    </div>
+
+    <div class="section-title">Cut Diagrams</div>
+    <div class="cut-grid" id="cutGrid"></div>
+
+    <div class="section-title print-only" style="margin-top:6px;">Summary To Cut</div>
+    <div class="print-only stc-wrap" id="summaryToCut"></div>
+
+  </div>
+
+</main>
+
+<script>
+const COLORS = ['#7FB3D5','#F4B183','#A9D18E','#D9A9D9','#F7CB73','#88C9C9','#E39696','#B7B7EB','#9FD8A0','#F0A8C1'];
+let stockRowId=0, orderRowId=0;
+let lastOffcutGroups = [];
+let pieceState = {}; // rowId -> {colVals:[], rowVals:[]}
+
+function addStockRow(type, w, h, qty, thickness){
+  const id = 'st'+(stockRowId++);
+  const tr = document.createElement('tr');
+  tr.id = id;
+  tr.innerHTML = `
+    <td><select onchange="onStockTypeChange('${id}')">
+        <option value="full">Full Sheet</option>
+        <option value="offcut">Offcut</option>
+      </select></td>
+    <td><input type="number" class="num" value="${w??3600}"></td>
+    <td><input type="number" class="num" value="${h??1200}"></td>
+    <td><select class="thickness-select">
+        <option value="1.6"${(thickness??'1.6')==='1.6'?' selected':''}>1.6mm</option>
+        <option value="2"${thickness==='2'?' selected':''}>2mm</option>
+        <option value="3"${thickness==='3'?' selected':''}>3mm</option>
+      </select></td>
+    <td><input type="number" class="num" value="${qty??1}" style="width:65px;"></td>
+    <td><button class="rm-btn" onclick="document.getElementById('${id}').remove();updateCounts();">&times;</button></td>
+  `;
+  document.getElementById('stockBody').appendChild(tr);
+  if(type==='offcut'){ tr.querySelector('select').value='offcut'; }
+  updateCounts();
+}
+function onStockTypeChange(id){
+  const tr = document.getElementById(id);
+  const sel = tr.querySelector('select').value;
+  const wInput = tr.querySelectorAll('input')[0];
+  const hInput = tr.querySelectorAll('input')[1];
+  if(sel==='full'){
+    wInput.value = document.getElementById('sheetW').value;
+    hInput.value = document.getElementById('sheetH').value;
+  }
+}
+
+function addOrderRow(label, w, h, qty, rotate, thickness){
+  const id = 'ord'+(orderRowId++);
+  pieceState[id] = {colVals:[], rowVals:[]};
+  const card = document.createElement('div');
+  card.className='piece-card';
+  card.id = id;
+  card.innerHTML = `
+    <div class="piece-top">
+      <div class="piece-field"><label>Label</label><input type="text" class="labelfield" value="${label??''}" placeholder="e.g. Wall Sign A"></div>
+      <div class="piece-field"><label>Width</label><input type="number" class="wfield" value="${w??600}" oninput="onDimChange('${id}')"></div>
+      <div class="piece-field"><label>Height</label><input type="number" class="hfield" value="${h??600}" oninput="onDimChange('${id}')"></div>
+      <div class="piece-field"><label>Thickness</label><select class="thicknessfield">
+          <option value="1.6"${(thickness??'1.6')==='1.6'?' selected':''}>1.6mm</option>
+          <option value="2"${thickness==='2'?' selected':''}>2mm</option>
+          <option value="3"${thickness==='3'?' selected':''}>3mm</option>
+        </select></div>
+      <div class="piece-field qty"><label>Qty</label><input type="number" class="qtyfield" value="${qty??1}"></div>
+      <div class="piece-field rotate"><input type="checkbox" class="rotfield" ${rotate!==false?'checked':''}><label>Rotate OK</label></div>
+      <div class="piece-remove"><button onclick="document.getElementById('${id}').remove();delete pieceState['${id}'];updateCounts();">&times;</button></div>
+    </div>
+    <div class="plan-cell"></div>
+  `;
+  document.getElementById('orderBody').appendChild(card);
+  onDimChange(id);
+  updateCounts();
+}
+
+function updateCounts(){
+  document.getElementById('stockCount').textContent = document.getElementById('stockBody').children.length + ' lines';
+  document.getElementById('orderCount').textContent = document.getElementById('orderBody').children.length + ' pieces';
+}
+
+function toggleFulfilment(){
+  const body = document.getElementById('fulfilContainer');
+  const chevron = document.getElementById('fulfilChevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function carryOffcutsToStock(){
+  lastOffcutGroups.forEach(g=> addStockRow('offcut', g.w, g.h, g.count, g.thickness));
+  const btn = document.getElementById('carryForwardBtn');
+  btn.textContent = 'Added to Stock On Hand ✓';
+  btn.disabled = true;
+  document.getElementById('stockBody').parentElement.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function getSettings(){
+  return {
+    sheetW: parseFloat(document.getElementById('sheetW').value)||3600,
+    sheetH: parseFloat(document.getElementById('sheetH').value)||1200,
+    maxCutLen: parseFloat(document.getElementById('maxCutLen').value)||3200,
+    maxPrintH: parseFloat(document.getElementById('maxPrintH').value)||1200,
+    maxConnectLen: parseFloat(document.getElementById('maxConnectLen').value)||8000,
+    joinersAllowed: document.getElementById('joinersAllowed').checked,
+    connectingAllowed: document.getElementById('connectingAllowed').checked
+  };
+}
+
+// ---------------- PANEL PLAN (Joiner / Connecting Panels) ----------------
+function computeSegments(total, count, userVals, maxEach, reverseAuto){
+  if(count===1) return [total];
+  let vals = new Array(count).fill(0);
+  if(!reverseAuto){
+    const evenDefault = Math.round(total/count);
+    for(let i=0;i<count-1;i++){
+      vals[i] = (userVals && userVals[i]!=null && userVals[i]>0) ? userVals[i] : evenDefault;
+    }
+    vals[count-1] = total - vals.slice(0,count-1).reduce((a,b)=>a+b,0);
+  } else {
+    // Bottom rows are editable and default to full height (maxEach).
+    // Top row (index 0) is auto — the leftover, usually the smallest piece.
+    for(let i=1;i<count;i++){
+      vals[i] = (userVals && userVals[i]!=null && userVals[i]>0) ? userVals[i] : maxEach;
+    }
+    vals[0] = total - vals.slice(1).reduce((a,b)=>a+b,0);
+  }
+  return vals;
+}
+function computePanelPlan(w,h,cfg,userColVals,userRowVals){
+  const colsNeeded = w > cfg.maxCutLen ? Math.ceil(w/cfg.maxCutLen) : 1;
+  const rowsNeeded = h > cfg.maxPrintH ? Math.ceil(h/cfg.maxPrintH) : 1;
+  const totalPanels = colsNeeded*rowsNeeded;
+  if(totalPanels===1) return {type:'single'};
+  if(w > cfg.maxConnectLen || h > cfg.maxConnectLen){
+    return {type:'blocked', reason:`Exceeds the max span (${cfg.maxConnectLen}mm). Check with your supervisor.`};
+  }
+  const needsJoiner = rowsNeeded>1;       // height stacking
+  const needsConnecting = colsNeeded>1;   // width combining
+  if(needsJoiner && !cfg.joinersAllowed) return {type:'blocked', reason:`Needs a Joiner (height exceeds ${cfg.maxPrintH}mm) but Joiners are turned off for this job.`};
+  if(needsConnecting && !cfg.connectingAllowed) return {type:'blocked', reason:`Needs Connecting Panels (width exceeds ${cfg.maxCutLen}mm) but Connecting Panels are turned off for this job.`};
+  const colWidths = computeSegments(w, colsNeeded, userColVals, cfg.maxCutLen, false);
+  const rowHeights = computeSegments(h, rowsNeeded, userRowVals, cfg.maxPrintH, true);
+  const colsValid = colWidths.every(x=>x>0 && x<=cfg.maxCutLen+0.5);
+  const rowsValid = rowHeights.every(x=>x>0 && x<=cfg.maxPrintH+0.5);
+  let method;
+  if(needsJoiner && needsConnecting) method = 'both';
+  else if(needsJoiner) method = 'joiner';
+  else method = 'connecting';
+  return {type:method, colWidths, rowHeights, colsNeeded, rowsNeeded, needsJoiner, needsConnecting, valid: colsValid&&rowsValid};
+}
+
+function panelLabel(colsNeeded, rowsNeeded, c, r){
+  const index = r*colsNeeded + c;
+  return String.fromCharCode(65+index); // A, B, C, D...
+}
+
+function buildPreviewHTML(plan, sheetW, sheetH){
+  const rows = plan.rowsNeeded, cols = plan.colsNeeded;
+  let lines = [];
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const usedW = plan.colWidths[c], usedH = plan.rowHeights[r];
+      const part = panelLabel(cols, rows, c, r);
+      const rightW = sheetW-usedW, rightH = sheetH;
+      const topW = usedW, topH = sheetH-usedH;
+      let leftovers = [];
+      if(rightW>10 && rightH>10) leftovers.push(`${rightW}x${rightH}`);
+      if(topW>10 && topH>10) leftovers.push(`${topW}x${topH}`);
+      lines.push(`<b>${part}</b> ${usedW}x${usedH} &rarr; leftover ${leftovers.length?leftovers.join(' + '):'none'}`);
+    }
+  }
+  return lines.join('<br>');
+}
+
+function buildPlanBoxHTML(rowId, w, h, plan, s){
+  if(plan.type==='single'){
+    return `<div class="plan-box none">Fits on one sheet, no Joiner needed</div>`;
+  }
+  if(plan.type==='blocked'){
+    return `<div class="plan-box blocked">${plan.reason}</div>`;
+  }
+  let title, cssClass;
+  if(plan.type==='joiner'){
+    title = `JOINER NEEDED (${plan.rowsNeeded} panels stacked in height)`;
+    cssClass = 'joiner';
+  } else if(plan.type==='connecting'){
+    title = `CONNECTING PANELS NEEDED (${plan.colsNeeded} panels, strut-backed in width)`;
+    cssClass = 'connecting';
+  } else {
+    title = `JOINER + CONNECTING PANELS NEEDED (${plan.colsNeeded}×${plan.rowsNeeded} grid)`;
+    cssClass = 'connecting';
+  }
+  let html = `<div class="plan-box ${cssClass}"><div class="plan-title ${cssClass}">${title}</div>`;
+
+  if(plan.colsNeeded>1){
+    html += `<div class="seg-editor">`;
+    for(let c=0;c<plan.colsNeeded;c++){
+      const auto = c===plan.colsNeeded-1;
+      const lbl = plan.colsNeeded===2 ? (c===0?'Left width':'Right width (auto)') : `Col ${c+1} width${auto?' (auto)':''}`;
+      html += `<div class="seg-item ${auto?'auto':''}"><div class="seg-lbl">${lbl}</div>
+        <input type="number" id="${rowId}_col${c}" ${auto?'readonly':''} value="${plan.colWidths[c]}" oninput="onSegInput('${rowId}','col',${c},this.value)"></div>`;
+      if(c<plan.colsNeeded-1) html += `<div class="seg-plus">+</div>`;
+    }
+    html += `<div class="seg-plus">= ${w}</div></div>`;
+  }
+  if(plan.rowsNeeded>1){
+    html += `<div class="seg-editor">`;
+    for(let r=0;r<plan.rowsNeeded;r++){
+      const auto = r===0;
+      const lbl = plan.rowsNeeded===2 ? (r===0?'Top height (auto)':'Bottom height') : `Row ${r+1} height${auto?' (auto, top)':''}`;
+      html += `<div class="seg-item ${auto?'auto':''}"><div class="seg-lbl">${lbl}</div>
+        <input type="number" id="${rowId}_row${r}" ${auto?'readonly':''} value="${plan.rowHeights[r]}" oninput="onSegInput('${rowId}','row',${r},this.value)"></div>`;
+      if(r<plan.rowsNeeded-1) html += `<div class="seg-plus">+</div>`;
+    }
+    html += `<div class="seg-plus">= ${h}</div></div>`;
+  }
+  html += `<div class="offcut-preview" id="${rowId}_preview">${buildPreviewHTML(plan, s.sheetW, s.sheetH)}</div>`;
+  html += `<div class="invalid-note" id="${rowId}_invalid" style="display:${plan.valid?'none':'block'};">Check panel sizes, each must fit within the machine limits.</div>`;
+  html += `</div>`;
+  return html;
+}
+
+function onDimChange(rowId){
+  const card = document.getElementById(rowId);
+  if(!card) return;
+  const w = parseFloat(card.querySelector('.wfield').value)||0;
+  const h = parseFloat(card.querySelector('.hfield').value)||0;
+  const s = getSettings();
+  const st = pieceState[rowId] || (pieceState[rowId]={colVals:[],rowVals:[]});
+  const plan = computePanelPlan(w,h,s,st.colVals,st.rowVals);
+  const cell = card.querySelector('.plan-cell');
+  cell.innerHTML = buildPlanBoxHTML(rowId, w, h, plan, s);
+}
+
+// Patches only the auto field + preview text, never rebuilds the input the person
+// is currently typing in, so it never loses focus mid-keystroke.
+function onSegInput(rowId, kind, idx, val){
+  const card = document.getElementById(rowId);
+  const st = pieceState[rowId];
+  const num = parseFloat(val)||0;
+  const arr = kind==='col' ? st.colVals : st.rowVals;
+  arr[idx] = num;
+
+  const w = parseFloat(card.querySelector('.wfield').value)||0;
+  const h = parseFloat(card.querySelector('.hfield').value)||0;
+  const s = getSettings();
+  const plan = computePanelPlan(w,h,s,st.colVals,st.rowVals);
+  if(plan.type==='single' || plan.type==='blocked') return;
+
+  if(kind==='col'){
+    const autoCol = document.getElementById(`${rowId}_col${plan.colsNeeded-1}`);
+    if(autoCol) autoCol.value = plan.colWidths[plan.colsNeeded-1];
+  } else {
+    const autoRow = document.getElementById(`${rowId}_row0`);
+    if(autoRow) autoRow.value = plan.rowHeights[0];
+  }
+
+  const preview = document.getElementById(`${rowId}_preview`);
+  if(preview) preview.innerHTML = buildPreviewHTML(plan, s.sheetW, s.sheetH);
+
+  const invalid = document.getElementById(`${rowId}_invalid`);
+  if(invalid) invalid.style.display = plan.valid ? 'none' : 'block';
+}
+
+function refreshAllPlans(){
+  Object.keys(pieceState).forEach(id=>{ if(document.getElementById(id)) onDimChange(id); });
+}
+document.getElementById('maxCutLen').addEventListener('input', refreshAllPlans);
+document.getElementById('maxPrintH').addEventListener('input', refreshAllPlans);
+document.getElementById('maxConnectLen').addEventListener('input', refreshAllPlans);
+
+// ---------- default / reset state ----------
+function resetAll(){
+  document.getElementById('sheetW').value = 3600;
+  document.getElementById('sheetH').value = 1200;
+  document.getElementById('maxCutLen').value = 3200;
+  document.getElementById('maxPrintH').value = 1200;
+  document.getElementById('maxConnectLen').value = 8000;
+  document.getElementById('joinersAllowed').checked = true;
+  document.getElementById('connectingAllowed').checked = true;
+
+  document.getElementById('stockBody').innerHTML = '';
+  addStockRow('full', 3600, 1200, 30, '1.6');
+  addStockRow('full', 3000, 790, 20, '2');
+
+  document.getElementById('orderBody').innerHTML = '';
+  pieceState = {};
+  updateCounts();
+
+  document.getElementById('results').style.display = 'none';
+  lastOffcutGroups = [];
+}
+resetAll();
+
+// ---------------------- CORE ALGORITHM (unified pool, sequential guillotine cuts) ----------------------
+
+function tryFulfillFromOffcuts(pool, piece){
+  let best=null;
+  for(const off of pool){
+    if(off.usedUp) continue;
+    if(off.thickness !== piece.thickness) continue;
+    const orients=[{w:piece.w,h:piece.h,rot:false}];
+    if(piece.allowRotate) orients.push({w:piece.h,h:piece.w,rot:true});
+    // Waste from a single cut is identical no matter which way the piece is
+    // turned (rotating doesn't change its area). So for THIS offcut, don't
+    // just take the first orientation that fits — pick whichever orientation
+    // packs the most copies of this piece into the offcut overall, so the
+    // leftover keeps chaining into more usable pieces instead of slivers.
+    let bestForThisOffcut = null;
+    for(const o of orients){
+      if(off.w >= o.w-0.001 && off.h >= o.h-0.001){
+        const selfYield = Math.floor(off.w/o.w) * Math.floor(off.h/o.h);
+        if(!bestForThisOffcut || selfYield > bestForThisOffcut.selfYield) bestForThisOffcut = {o, selfYield};
+      }
+    }
+    if(bestForThisOffcut){
+      const o = bestForThisOffcut.o;
+      const wasteArea = off.w*off.h - o.w*o.h;
+      if(!best || wasteArea<best.wasteArea) best={offcut:off, orient:o, wasteArea};
+    }
+  }
+  return best;
+}
+function splitLeftover(off, usedW, usedH){
+  const out=[];
+  const rightW = off.w-usedW, rightH = off.h;
+  const topW = usedW, topH = off.h-usedH;
+  if(rightW > 10 && rightH > 10) out.push({w:rightW,h:rightH, ax:off.ax+usedW, ay:off.ay, rootId:off.rootId, rootLabel:off.rootLabel, rootW:off.rootW, rootH:off.rootH, thickness:off.thickness});
+  if(topW > 10 && topH > 10) out.push({w:topW,h:topH, ax:off.ax, ay:off.ay+usedH, rootId:off.rootId, rootLabel:off.rootLabel, rootW:off.rootW, rootH:off.rootH, thickness:off.thickness});
+  return out;
+}
+function tryJoinFromOffcuts(pool, piece){
+  let best=null;
+  const targets = [{w:piece.w,h:piece.h}];
+  if(piece.allowRotate) targets.push({w:piece.h,h:piece.w});
+  const active = pool.filter(o=>!o.usedUp && o.kind==='offcut' && o.thickness===piece.thickness);
+  for(let i=0;i<active.length;i++){
+    for(let j=i+1;j<active.length;j++){
+      const a=active[i], b=active[j];
+      for(const t of targets){
+        if(Math.abs(a.w-b.w) < 0.5 && a.w >= t.w-0.001 && (a.h+b.h) >= t.h-0.001){
+          const waste = a.w*(a.h+b.h) - t.w*t.h;
+          if(!best || waste<best.waste) best={a,b,orient:t,waste,mode:'width-match'};
+        }
+        if(Math.abs(a.h-b.h) < 0.5 && a.h >= t.h-0.001 && (a.w+b.w) >= t.w-0.001){
+          const waste = (a.w+b.w)*a.h - t.w*t.h;
+          if(!best || waste<best.waste) best={a,b,orient:t,waste,mode:'height-match'};
+        }
+      }
+    }
+  }
+  return best;
+}
+
+function pushLeftovers(pool, leftovers, state){
+  leftovers.forEach(l=> pool.push({
+    id:'gen'+(state.genCounter++), w:l.w, h:l.h, label:`${l.w}x${l.h}`, usedUp:false, kind:'offcut',
+    rootId:l.rootId, rootLabel:l.rootLabel, rootW:l.rootW, rootH:l.rootH, ax:l.ax, ay:l.ay, thickness:l.thickness
+  }));
+}
+
+// How many of pieceW x pieceH fit on a wxh sheet in a simple grid (best of the two orientations)?
+function sheetYield(w, h, pieceW, pieceH, allowRotate){
+  let y = Math.floor(w/pieceW) * Math.floor(h/pieceH);
+  if(allowRotate) y = Math.max(y, Math.floor(w/pieceH) * Math.floor(h/pieceW));
+  return y;
+}
+
+// Choose which sheet to crack open next: prefer stock of the CORRECT THICKNESS (over
+// ordering new), and among stock types, prefer whichever fits the MOST of this exact
+// piece per sheet (not just whichever wastes least for a single piece) — tie-broken
+// by the smaller sheet. If no stock exists in this thickness, assume a new sheet of
+// the default size will be ordered in that thickness.
+function chooseSheetType(sheetTypes, defaultW, defaultH, pieceW, pieceH, allowRotate, thickness){
+  const fits = (w,h) => (pieceW<=w+0.001 && pieceH<=h+0.001) || (allowRotate && pieceH<=w+0.001 && pieceW<=h+0.001);
+  const stockCandidates = sheetTypes.filter(t=>t.qtyRemaining>0 && t.thickness===thickness && fits(t.w,t.h));
+  if(stockCandidates.length){
+    stockCandidates.sort((a,b)=>{
+      const ya = sheetYield(a.w,a.h,pieceW,pieceH,allowRotate), yb = sheetYield(b.w,b.h,pieceW,pieceH,allowRotate);
+      if(yb!==ya) return yb-ya;
+      return (a.w*a.h)-(b.w*b.h);
+    });
+    return {w:stockCandidates[0].w, h:stockCandidates[0].h, type:stockCandidates[0], fromStock:true};
+  }
+  return {w:defaultW, h:defaultH, type:null, fromStock:false};
+}
+
+function fulfilAtomic(atom, pool, allowOptionalJoin, cfg, fulfilResults, state){
+  const offcutHit = tryFulfillFromOffcuts(pool, atom);
+
+  if(offcutHit){
+    const src = offcutHit.offcut;
+    src.usedUp = true;
+    const leftovers = splitLeftover(src, offcutHit.orient.w, offcutHit.orient.h);
+    pushLeftovers(pool, leftovers, state);
+    fulfilResults.push({atom, method:'offcut', detail:`Cut from ${src.label}${offcutHit.orient.rot?' (rotated)':''}`,
+      sourceUsed:src, orient:offcutHit.orient, leftovers,
+      rootId:src.rootId, rootLabel:src.rootLabel, rootW:src.rootW, rootH:src.rootH, ax:src.ax, ay:src.ay});
+    return;
+  }
+  // nothing fits — open a new sheet, choosing the best available stock size in the right thickness
+  const chosen = chooseSheetType(state.sheetTypes, cfg.sheetW, cfg.sheetH, atom.w, atom.h, atom.allowRotate, atom.thickness);
+  let label;
+  if(chosen.fromStock){
+    chosen.type.qtyRemaining--;
+    state.sheetsUsedFromStock++;
+    label = `Sheet ${chosen.w}x${chosen.h} ${atom.thickness}mm (stock) #${state.sheetsUsedFromStock}`;
+  } else {
+    state.sheetsNeededToOrder++;
+    label = `Sheet ${chosen.w}x${chosen.h} ${atom.thickness}mm (order) #${state.sheetsNeededToOrder}`;
+  }
+  state.openedSheets.push({w:chosen.w, h:chosen.h, thickness:atom.thickness, fromStock:chosen.fromStock});
+  const sheetId = 'sheet'+(state.sheetCounter++);
+  const newSheet = {id:sheetId, w:chosen.w, h:chosen.h, label, usedUp:false, kind:'sheet', thickness:atom.thickness,
+    rootId:sheetId, rootLabel:label, rootW:chosen.w, rootH:chosen.h, ax:0, ay:0};
+  pool.push(newSheet);
+  const hit2 = tryFulfillFromOffcuts(pool, atom);
+  if(hit2){
+    const src = hit2.offcut;
+    src.usedUp = true;
+    const leftovers = splitLeftover(src, hit2.orient.w, hit2.orient.h);
+    pushLeftovers(pool, leftovers, state);
+    fulfilResults.push({atom, method:'sheet', detail:`Cut from ${src.label}${hit2.orient.rot?' (rotated)':''}`,
+      sourceUsed:src, orient:hit2.orient, leftovers,
+      rootId:src.rootId, rootLabel:src.rootLabel, rootW:src.rootW, rootH:src.rootH, ax:src.ax, ay:src.ay});
+  } else {
+    fulfilResults.push({atom, method:'blocked', detail:'Piece is larger than the sheet itself — check dimensions.'});
+  }
+}
+
+function runCalculation(){
+  const s = getSettings();
+
+  let sheetTypes = [];
+  let pool = [];
+  let ocId=0;
+  [...document.getElementById('stockBody').children].forEach(tr=>{
+    const sel = tr.querySelector('select').value;
+    const inputs = tr.querySelectorAll('input');
+    const w = parseFloat(inputs[0].value), h = parseFloat(inputs[1].value), qty = parseInt(inputs[2].value)||0;
+    const thickness = tr.querySelector('.thickness-select').value;
+    if(sel==='full'){
+      const existing = sheetTypes.find(t=>t.w===w && t.h===h && t.thickness===thickness);
+      if(existing) existing.qtyRemaining += qty;
+      else sheetTypes.push({w, h, thickness, qtyRemaining:qty});
+    }
+    else {
+      for(let i=0;i<qty;i++){
+        const id = 'oc'+(ocId++);
+        const label = `${w}x${h} offcut`;
+        pool.push({id, w, h, label, usedUp:false, kind:'offcut', thickness, rootId:id, rootLabel:label, rootW:w, rootH:h, ax:0, ay:0});
+      }
+    }
+  });
+
+  let blocked = [];
+  let atomicUnits = [];
+  let panelGroups = [];
+  let uId=0, gId=0;
+
+
+  [...document.getElementById('orderBody').children].forEach((card,lineIdx)=>{
+    const label = card.querySelector('.labelfield').value || ('Piece '+(lineIdx+1));
+    const w = parseFloat(card.querySelector('.wfield').value);
+    const h = parseFloat(card.querySelector('.hfield').value);
+    const thickness = card.querySelector('.thicknessfield').value;
+    const qty = parseInt(card.querySelector('.qtyfield').value)||0;
+    const allowRotate = card.querySelector('.rotfield').checked;
+    const st = pieceState[card.id] || {colVals:[],rowVals:[]};
+    const colorIdx = lineIdx%COLORS.length;
+
+    const plan = computePanelPlan(w,h,s,st.colVals,st.rowVals);
+
+    if(plan.type==='blocked'){
+      blocked.push({label, w, h, qty, reason:plan.reason});
+      return;
+    }
+    if((plan.type==='joiner'||plan.type==='connecting'||plan.type==='both') && !plan.valid){
+      blocked.push({label, w, h, qty, reason:'Panel sizes entered do not fit within the machine limits — please check.'});
+      return;
+    }
+
+    for(let i=0;i<qty;i++){
+      if(plan.type==='single'){
+        atomicUnits.push({id:'u'+(uId++), label, w, h, thickness, allowRotate, colorIdx, groupId:null});
+      } else {
+        const gid = 'g'+(gId++);
+        const atoms = [];
+        for(let r=0;r<plan.rowsNeeded;r++){
+          for(let c=0;c<plan.colsNeeded;c++){
+            const partLabel = panelLabel(plan.colsNeeded, plan.rowsNeeded, c, r);
+            const a = {id:'u'+(uId++), label:`${label} - ${partLabel}`, w:plan.colWidths[c], h:plan.rowHeights[r], thickness, allowRotate, colorIdx, groupId:gid, part:partLabel};
+            atoms.push(a);
+            atomicUnits.push(a);
+          }
+        }
+        panelGroups.push({gid, label, w, h, thickness, method:plan.type, colWidths:plan.colWidths, rowHeights:plan.rowHeights, colsNeeded:plan.colsNeeded, rowsNeeded:plan.rowsNeeded, atoms});
+      }
+    }
+  });
+
+  atomicUnits.sort((a,b)=> (b.w*b.h)-(a.w*a.h));
+
+  let fulfilResults = [];
+  let state = {sheetsUsedFromStock:0, sheetsNeededToOrder:0, sheetTypes, sheetCounter:0, genCounter:0, openedSheets:[]};
+  for(const atom of atomicUnits){
+    const allowOptionalJoin = s.joinersAllowed && !atom.groupId;
+    fulfilAtomic(atom, pool, allowOptionalJoin, s, fulfilResults, state);
+  }
+
+  renderResults({
+    settings: s, blocked, panelGroups, fulfilResults, pool, openedSheets: state.openedSheets,
+    sheetsUsedFromStock: state.sheetsUsedFromStock, sheetsNeededToOrder: state.sheetsNeededToOrder,
+    totalAtoms: atomicUnits.length,
+    joinCount: fulfilResults.filter(r=>r.method==='join').length,
+    offcutCount: fulfilResults.filter(r=>r.method==='offcut').length,
+    sheetCutCount: fulfilResults.filter(r=>r.method==='sheet').length
+  });
+}
+
+function fmtArea(mm2){ return (mm2/1e6).toFixed(2)+' m²'; }
+
+function renderResults(data){
+  document.getElementById('results').style.display='block';
+
+  // SHEETS REQUIRED — the headline number, right under Calculate
+  const sheetsBody = document.getElementById('sheetsNeededBody');
+  sheetsBody.innerHTML='';
+  const sheetGroups = {};
+  data.openedSheets.forEach(sh=>{
+    const key = `${sh.w}x${sh.h}|${sh.thickness}`;
+    if(!sheetGroups[key]) sheetGroups[key] = {w:sh.w, h:sh.h, thickness:sh.thickness, fromStock:0, toOrder:0};
+    if(sh.fromStock) sheetGroups[key].fromStock++; else sheetGroups[key].toOrder++;
+  });
+  const sheetGroupList = Object.values(sheetGroups).sort((a,b)=>(b.w*b.h)-(a.w*a.h));
+  if(sheetGroupList.length===0){
+    sheetsBody.innerHTML = `<tr><td colspan="5" class="empty-hint">No full sheets needed — everything came from offcuts already on hand.</td></tr>`;
+  } else {
+    sheetGroupList.forEach(g=>{
+      const total = g.fromStock+g.toOrder;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${g.w} x ${g.h}</td><td>${g.thickness}mm</td><td>${g.fromStock}</td><td>${g.toOrder>0?`<span style="color:var(--red);">${g.toOrder}</span>`:'0'}</td><td class="total-cell">${total}</td>`;
+      sheetsBody.appendChild(tr);
+    });
+  }
+
+  const blockedSection = document.getElementById('blockedSection');
+  const blockedBody = document.getElementById('blockedBody');
+  blockedBody.innerHTML='';
+  if(data.blocked.length){
+    blockedSection.style.display='block';
+    data.blocked.forEach(b=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td>${b.label}</td><td>${b.w} x ${b.h}</td><td>${b.qty}</td><td>${b.reason}</td>`;
+      blockedBody.appendChild(tr);
+    });
+  } else { blockedSection.style.display='none'; }
+
+  const joinerGroups = data.panelGroups.filter(g=>g.method==='joiner'||g.method==='both');
+  const connectingGroups = data.panelGroups.filter(g=>g.method==='connecting'||g.method==='both');
+
+  document.getElementById('summaryStats').innerHTML = `
+    <div class="stat"><div class="num-big">${data.totalAtoms}</div><div class="lbl">Cut pieces total</div></div>
+    <div class="stat"><div class="num-big">${joinerGroups.length}</div><div class="lbl">Mandatory Joiners</div></div>
+    <div class="stat"><div class="num-big">${connectingGroups.length}</div><div class="lbl">Connecting Panel sets</div></div>
+    <div class="stat ${data.sheetsNeededToOrder>0?'warn':'good'}"><div class="num-big">${data.sheetsNeededToOrder}</div><div class="lbl">New sheets to order</div></div>
+  `;
+
+  const fulfilBody = document.getElementById('fulfilBody');
+  fulfilBody.innerHTML='';
+  data.fulfilResults.forEach(r=>{
+    const tr = document.createElement('tr');
+    const pillClass = r.method==='offcut'?'offcut':(r.method==='join'?'join':(r.method==='sheet'?'sheet':'blocked'));
+    tr.innerHTML = `<td>${r.atom.label}</td><td>${r.atom.w} x ${r.atom.h}</td>
+      <td><span class="pill ${pillClass}">${r.method.toUpperCase()}</span></td>
+      <td>${r.detail}</td>`;
+    fulfilBody.appendChild(tr);
+  });
+
+  // OFFCUT SUMMARY
+  const offcutBody = document.getElementById('offcutSummaryBody');
+  offcutBody.innerHTML='';
+  const remaining = data.pool.filter(p=>!p.usedUp && p.kind==='offcut');
+  const carryBtn = document.getElementById('carryForwardBtn');
+  if(remaining.length===0){
+    offcutBody.innerHTML = `<tr><td colspan="3" class="empty-hint">No offcuts left over — everything was used.</td></tr>`;
+    lastOffcutGroups = [];
+    carryBtn.style.display = 'none';
+  } else {
+    const groups = {};
+    remaining.forEach(o=>{
+      const key = `${o.w}x${o.h}x${o.thickness}`;
+      if(!groups[key]) groups[key] = {w:o.w,h:o.h,thickness:o.thickness,count:0};
+      groups[key].count++;
+    });
+    lastOffcutGroups = Object.values(groups).sort((a,b)=>(b.w*b.h)-(a.w*a.h));
+    carryBtn.style.display = 'block';
+    lastOffcutGroups.forEach(g=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="sizecell">${g.w} x ${g.h}</td><td>${g.thickness}mm</td><td>${g.count}</td>`;
+      offcutBody.appendChild(tr);
+    });
+  }
+
+  // CUT DIAGRAMS
+  const cutGrid = document.getElementById('cutGrid');
+  cutGrid.innerHTML='';
+  data.panelGroups.forEach((g,i)=> cutGrid.appendChild(buildPanelGroupCard(g, data.fulfilResults, i)));
+
+  const sheetCuts = data.fulfilResults.filter(r=>r.method==='offcut'||r.method==='sheet');
+  const byRoot = {};
+  sheetCuts.forEach(r=>{
+    if(!byRoot[r.rootId]) byRoot[r.rootId] = {rootLabel:r.rootLabel, rootW:r.rootW, rootH:r.rootH, cuts:[]};
+    byRoot[r.rootId].cuts.push(r);
+  });
+  Object.values(byRoot).forEach(root=> cutGrid.appendChild(buildRootSheetCard(root)));
+
+  if(cutGrid.children.length===0){
+    cutGrid.innerHTML = '<div class="empty-hint">No cutting required.</div>';
+  }
+
+  buildSummaryToCut(byRoot);
+}
+
+// Print-only plain-text recap: one block per sheet/diagram, listing every
+// piece label + the size it was actually cut to, so the workshop can
+// double-check what they cut without re-reading every diagram.
+function buildSummaryToCut(byRoot){
+  const el = document.getElementById('summaryToCut');
+  if(!el) return;
+  const blocks = Object.values(byRoot).map(root=>{
+    // Group identical (label, dims) pairs so repeats become "18x 450x600"
+    // instead of eighteen separate lines — order of first appearance preserved.
+    const groups = [];
+    const groupIndex = {};
+    root.cuts.forEach(r=>{
+      const label = r.atom.label;
+      const dims = `${r.orient.w}x${r.orient.h}`;
+      const key = label + '||' + dims;
+      if(groupIndex[key]===undefined){
+        groupIndex[key] = groups.length;
+        groups.push({label, dims, count:1});
+      } else {
+        groups[groupIndex[key]].count++;
+      }
+    });
+    const lines = groups.map(g=>{
+      const leftText = g.count > 1 ? `${g.count}x` : g.label;
+      return `<div class="stc-line"><span class="stc-label">${leftText}</span><span class="stc-dims">${g.dims}</span></div>`;
+    }).join('');
+    return `<div class="stc-block"><div class="stc-head">${root.rootLabel}</div>${lines}</div>`;
+  }).join('');
+  el.innerHTML = blocks;
+}
+
+function svgWrap(vbW, vbH, inner){
+  return `<svg width="100%" viewBox="0 0 ${vbW} ${vbH}" style="background:#F0F2F3;border:1px solid var(--line);border-radius:6px;">${inner}</svg>`;
+}
+function fitFontSize(text, boxW, boxH, charWidthRatio, heightRatio, minSize){
+  const len = Math.max(String(text).length, 1);
+  const byWidth = (boxW * 0.86) / (len * charWidthRatio);
+  const byHeight = boxH * heightRatio;
+  return Math.max(minSize, Math.min(byWidth, byHeight));
+}
+function rectLabel(x,y,w,h,fill,mainText,subText){
+  const cx=x+w/2, cy=y+h/2;
+  if(subText){
+    const mainSize = fitFontSize(mainText, w, h, 0.58, 0.34, 18);
+    const subSize = fitFontSize(subText, w, h, 0.63, 0.18, 13);
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="#1F2428" stroke-width="3"/>
+      <text x="${cx}" y="${cy-mainSize*0.25}" text-anchor="middle" dominant-baseline="middle" font-family="Oswald, sans-serif" font-size="${mainSize}" fill="#1F2428" font-weight="700">${mainText}</text>
+      <text x="${cx}" y="${cy+subSize*1.3}" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono, monospace" font-size="${subSize}" fill="#1F2428" font-weight="600">${subText}</text>`;
+  }
+  const fontSize = fitFontSize(mainText, w, h, 0.63, 0.30, 14);
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="#1F2428" stroke-width="3"/>
+    <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono, monospace" font-size="${fontSize}" fill="#1F2428" font-weight="700">${mainText}</text>`;
+}
+function wasteHatch(x,y,w,h){
+  if(w<1||h<1) return '';
+  const id = 'hatch'+Math.random().toString(36).slice(2,8);
+  return `<defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+      <rect width="20" height="20" fill="#FFF3DD"/><line x1="0" y1="0" x2="0" y2="20" stroke="#FFC845" stroke-width="6"/>
+    </pattern></defs><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${id})" stroke="#C7CDD1" stroke-width="1.5"/>`;
+}
+
+function buildPanelGroupCard(g, fulfilResults, i){
+  let vbW = g.w, vbH = g.h, inner = '';
+  let y=0;
+  for(let r=0;r<g.rowsNeeded;r++){
+    let x=0;
+    for(let c=0;c<g.colsNeeded;c++){
+      const atom = g.atoms[r*g.colsNeeded+c];
+      inner += rectLabel(x,y,g.colWidths[c],g.rowHeights[r],COLORS[atom.colorIdx], atom.part, `${atom.w}x${atom.h}`);
+      x += g.colWidths[c];
+    }
+    y += g.rowHeights[r];
+  }
+  let xAcc=0;
+  for(let c=0;c<g.colsNeeded-1;c++){ xAcc+=g.colWidths[c]; inner += `<line x1="${xAcc}" y1="0" x2="${xAcc}" y2="${g.h}" stroke="#C4432B" stroke-width="6" stroke-dasharray="16,10"/>`; }
+  let yAcc=0;
+  for(let r=0;r<g.rowsNeeded-1;r++){ yAcc+=g.rowHeights[r]; inner += `<line x1="0" y1="${yAcc}" x2="${g.w}" y2="${yAcc}" stroke="#C4432B" stroke-width="6" stroke-dasharray="16,10"/>`; }
+
+  const methodName = g.method==='joiner' ? 'JOINER' : (g.method==='connecting' ? 'CONNECTING PANELS' : 'JOINER + CONNECTING PANELS');
+  const caption = g.method==='joiner' ? 'Height stacked with Joiner seam(s)' : (g.method==='connecting' ? 'Width combined with Connecting Panels (struts)' : 'Height stacked (Joiner) and width combined (Connecting Panels)');
+  const card = document.createElement('div');
+  card.className='cut-card panel-group-card';
+  card.innerHTML = `
+    <div class="cc-head"><span>${methodName}</span><span>${g.label} · ${g.w}x${g.h}</span></div>
+    <div class="cc-body">${svgWrap(vbW, vbH, inner)}</div>
+    <div class="legend-note">${caption}</div>
+  `;
+  return card;
+}
+
+function buildRootSheetCard(root){
+  let inner = wasteHatch(0,0,root.rootW,root.rootH);
+  root.cuts.forEach(r=>{
+    inner += rectLabel(r.ax, r.ay, r.orient.w, r.orient.h, COLORS[r.atom.colorIdx],
+      r.atom.part||`${r.atom.w}x${r.atom.h}`, r.atom.part?`${r.atom.w}x${r.atom.h}`:null);
+  });
+  const usedArea = root.cuts.reduce((s,r)=>s+r.orient.w*r.orient.h,0);
+  const util = ((usedArea/(root.rootW*root.rootH))*100).toFixed(0);
+  const pieceList = root.cuts.map(r=>r.atom.label).join(', ');
+  const card = document.createElement('div');
+  card.className='cut-card';
+  card.innerHTML = `
+    <div class="cc-head"><span>${root.rootLabel}</span><span>${util}% used</span></div>
+    <div class="cc-body">${svgWrap(root.rootW, root.rootH, inner)}</div>
+    <div class="legend-note">${root.cuts.length} piece${root.cuts.length!==1?'s':''} cut from this sheet: <b>${pieceList}</b></div>
+  `;
+  return card;
+}
+
+function buildJoinCard(r, i){
+  const p = r.joinPair;
+  const a=p.a, b=p.b, t=p.orient;
+  let vbW, vbH, inner;
+  if(p.mode==='width-match'){
+    vbW = a.w; vbH = a.h+b.h;
+    inner = wasteHatch(0,0,vbW,vbH);
+    inner += rectLabel(0,0,a.w,a.h,'#DCE6EF', a.label);
+    inner += `<line x1="0" y1="${a.h}" x2="${a.w}" y2="${a.h}" stroke="#C4432B" stroke-width="4" stroke-dasharray="14,8"/>`;
+    inner += rectLabel(0,a.h,b.w,b.h,'#EAF2E8', b.label);
+    inner += `<rect x="0" y="0" width="${t.w}" height="${t.h}" fill="none" stroke="${COLORS[r.atom.colorIdx]}" stroke-width="8"/>`;
+  } else {
+    vbW = a.w+b.w; vbH = a.h;
+    inner = wasteHatch(0,0,vbW,vbH);
+    inner += rectLabel(0,0,a.w,a.h,'#DCE6EF', a.label);
+    inner += `<line x1="${a.w}" y1="0" x2="${a.w}" y2="${a.h}" stroke="#C4432B" stroke-width="4" stroke-dasharray="14,8"/>`;
+    inner += rectLabel(a.w,0,b.w,b.h,'#EAF2E8', b.label);
+    inner += `<rect x="0" y="0" width="${t.w}" height="${t.h}" fill="none" stroke="${COLORS[r.atom.colorIdx]}" stroke-width="8"/>`;
+  }
+  const card = document.createElement('div');
+  card.className='cut-card';
+  card.innerHTML = `
+    <div class="cc-head"><span>OPTIONAL JOINER</span><span>→ ${r.atom.label} ${r.atom.w}x${r.atom.h}</span></div>
+    <div class="cc-body">${svgWrap(vbW, vbH, inner)}</div>
+    <div class="legend-note">Material-saving join of 2 existing offcuts instead of using a fresh sheet.</div>
+  `;
+  return card;
+}
+
+function updatePrintDate(){
+  const d = new Date();
+  document.getElementById('printDate').textContent = d.toLocaleDateString();
+}
+updatePrintDate();
+window.addEventListener('beforeprint', updatePrintDate);
+
+// Client Name / Job Number are required before printing, and always start
+// blank (no memory of the last entry) so each printout is deliberate.
+function openPrintInfoModal(){
+  document.getElementById('printClientName').value = '';
+  document.getElementById('printJobNumber').value = '';
+  document.getElementById('printModalError').style.display = 'none';
+  document.getElementById('printInfoModal').style.display = 'flex';
+  document.getElementById('printClientName').focus();
+}
+function closePrintInfoModal(){
+  document.getElementById('printInfoModal').style.display = 'none';
+}
+function confirmPrintInfo(){
+  const clientName = document.getElementById('printClientName').value.trim();
+  const jobNumber = document.getElementById('printJobNumber').value.trim();
+  if(!clientName || !jobNumber){
+    document.getElementById('printModalError').style.display = 'block';
+    if(!clientName) document.getElementById('printClientName').focus();
+    else document.getElementById('printJobNumber').focus();
+    return;
+  }
+  document.getElementById('pjbClient').textContent = clientName;
+  document.getElementById('pjbJobNo').textContent = jobNumber;
+  closePrintInfoModal();
+  window.print();
+}
+// Enter moves Client Name -> Job Number -> submits, so the whole thing can
+// be filled out and printed without touching the mouse.
+document.getElementById('printClientName').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('printJobNumber').focus(); }
+});
+document.getElementById('printJobNumber').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ e.preventDefault(); confirmPrintInfo(); }
+});
+document.getElementById('printInfoModal').addEventListener('click', e=>{
+  if(e.target.id==='printInfoModal') closePrintInfoModal();
+});
+</script>
+
+</div><!-- /#appContent -->
+
+</body>
+</html>
